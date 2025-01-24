@@ -91,3 +91,6 @@ td button:last-child {
     padding: 10px;
   }
 }
+.low-stock {
+  background-color: #ffe6e6; /* Light red background */
+}

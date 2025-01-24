@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import InventoryTable from './components/InventoryTable';
 import AddItemForm from './components/AddItemForm';
+import FilterControls from './components/FilterControls'; // Import FilterControls
 import './App.css';
 
 const API_URL = 'http://localhost:5000/api/inventory';
 
 function App() {
   const [inventory, setInventory] = useState([]);
-  const [sortOrder, setSortOrder] = useState('asc'); // Track the sort order ('asc' or 'desc')
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [selectedCategory, setSelectedCategory] = useState(''); // Track selected category
 
-  // Fetch items from the server
   const fetchInventory = async () => {
     try {
       const response = await axios.get(API_URL);
@@ -51,7 +52,6 @@ function App() {
     }
   };
 
-  // Sort inventory based on quantity
   const sortInventoryByQuantity = () => {
     const sorted = [...inventory].sort((a, b) => {
       if (sortOrder === 'asc') {
@@ -62,13 +62,25 @@ function App() {
     });
 
     setInventory(sorted);
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); // Toggle sort order
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
+
+  const filteredInventory = selectedCategory
+    ? inventory.filter((item) => item.category === selectedCategory)
+    : inventory;
+
+  const categories = [...new Set(inventory.map((item) => item.category))];
 
   return (
     <div className="app">
       <h1>Inventory Management</h1>
       <AddItemForm onAddItem={addItem} />
+
+      <FilterControls
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+      />
 
       <div className="controls">
         <button onClick={sortInventoryByQuantity}>
@@ -77,7 +89,7 @@ function App() {
       </div>
 
       <InventoryTable
-        inventory={inventory}
+        inventory={filteredInventory}
         onUpdateItem={updateItem}
         onDeleteItem={deleteItem}
       />
